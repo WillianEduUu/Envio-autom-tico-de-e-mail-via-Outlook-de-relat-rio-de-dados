@@ -1,87 +1,97 @@
-# Relatório Automatizado de Vendas por Loja
+# Relatório de Vendas por Loja (Python)
 
 ## Descrição
+
 Este script realiza a leitura de uma base de dados de vendas em formato Excel, calcula métricas agregadas por loja e envia automaticamente um relatório por e-mail utilizando o Microsoft Outlook.
 
-O processamento dos dados é feito com a biblioteca **pandas**, que permite manipulação eficiente de dados tabulares. Após o cálculo das métricas, os resultados são convertidos para tabelas HTML e inseridos no corpo de um e-mail enviado automaticamente via automação do Outlook utilizando **win32com**.
+O processamento é feito com a biblioteca **pandas**, que permite manipulação eficiente de dados tabulares. Após a análise, os resultados são convertidos para tabelas HTML e inseridos no corpo de um e-mail enviado via automação do Outlook utilizando **win32com**.
 
-A base de dados utilizada neste projeto é uma planilha de vendas com múltiplas lojas fictícias (gerada apenas para fins de teste e prática de análise de dados).
+O objetivo do script é automatizar a geração e distribuição de relatórios operacionais de vendas.
 
 ---
 
 ## Dependências
-O script utiliza as seguintes bibliotecas:
+
+O código utiliza as seguintes bibliotecas:
 
 * `pandas`
-* `pywin32` (`win32com.client`)
+* `pywin32` (win32com.client)
 
-Instalação:
+Instalação das dependências:
+
 ```bash
 pip install pandas pywin32
 ```
 
-Para que o envio de e-mails funcione corretamente, é necessário que o **Microsoft Outlook esteja instalado e configurado no sistema**, pois o script utiliza a interface COM do Windows para criar e enviar o e-mail.
+O script depende também de uma instalação local do **Microsoft Outlook**, pois o envio do e-mail é feito através da interface COM do Windows.
 
 ---
 
-## Base de Dados
-O script utiliza o arquivo:
+## Fonte de Dados
+
+O script lê o arquivo:
 
 ```
-Vendas.xlsx
+Vendas_novas_lojas.xlsx
 ```
 
-A planilha contém registros individuais de vendas realizados por diferentes lojas fictícias (como *Loja Centro*, *Mega Store Paulista*, *Shopping Aurora*, entre outras).
+Este arquivo contém os registros de vendas individuais utilizados para teste do script. A planilha possui dados simulados de vendas distribuídos entre diferentes lojas fictícias.
 
-As principais colunas utilizadas no processamento são:
+Entre as colunas utilizadas na análise estão:
 
-* `ID Loja` — identificador da loja responsável pela venda
-* `Valor Final` — valor monetário total da venda
-* `Quantidade` — número de produtos vendidos na transação
+* `ID Loja` – identificador da loja responsável pela venda
+* `Valor Final` – valor monetário total da venda
+* `Quantidade` – número de produtos vendidos na transação
 
-Cada linha da planilha representa uma venda individual.
+Os dados são carregados em um **DataFrame do pandas** através da função:
+
+```python
+pd.read_excel()
+```
 
 ---
 
 ## Etapas do Processamento
-### Leitura da planilha
-A base de dados é carregada em memória como um **DataFrame do pandas**:
+
+### Leitura da base de dados
+
+A planilha Excel é carregada em memória como um DataFrame:
 
 ```python
-tabela_vendas = pd.read_excel('Vendas.xlsx')
+tabela_vendas = pd.read_excel('Vendas_novas_lojas.xlsx')
 ```
 
-O comando
+Em seguida, a configuração
 
 ```python
 pd.set_option('display.max_columns', None)
 ```
 
-é utilizado apenas para garantir que todas as colunas da tabela sejam exibidas ao imprimir o DataFrame no terminal.
+permite visualizar todas as colunas da tabela ao imprimir o DataFrame no terminal.
 
 ---
 
 ### Cálculo do faturamento por loja
 
-O faturamento total de cada loja é calculado agrupando os registros pela coluna `ID Loja` e somando os valores da coluna `Valor Final`:
+O faturamento é calculado agrupando os registros pela coluna `ID Loja` e somando os valores da coluna `Valor Final`:
 
 ```python
 faturamento = tabela_vendas[['ID Loja', 'Valor Final']].groupby('ID Loja').sum()
 ```
 
-O resultado é uma tabela contendo o faturamento total gerado por cada loja.
+O resultado é uma tabela contendo o faturamento total de cada loja.
 
 ---
 
-### Cálculo da quantidade de produtos vendidos
+### Quantidade total de produtos vendidos
 
-A quantidade total de itens vendidos é obtida agrupando os registros por loja e somando a coluna `Quantidade`:
+A quantidade de itens vendidos é calculada de forma semelhante, agrupando pela loja e somando a coluna `Quantidade`:
 
 ```python
 quantidade = tabela_vendas[['ID Loja', 'Quantidade']].groupby('ID Loja').sum()
 ```
 
-Essa etapa permite identificar o volume total de produtos vendidos por cada unidade.
+Essa tabela representa o volume total de produtos vendidos por cada loja.
 
 ---
 
