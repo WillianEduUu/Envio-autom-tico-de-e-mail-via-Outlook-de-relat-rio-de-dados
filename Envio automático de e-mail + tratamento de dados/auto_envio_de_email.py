@@ -1,4 +1,5 @@
 import pandas as pd
 import win32com.client as w32 
 
-tabela_vendas = 1 
+df = pd.read_excel("Vendas_novas_lojas.xlsx")  
+
